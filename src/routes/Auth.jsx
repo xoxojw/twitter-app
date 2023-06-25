@@ -8,6 +8,7 @@ import {
   signInWithPopup,
   signInWithEmailAndPassword,
   } from 'firebase/auth';
+import { Link } from "react-router-dom";
 
 const Auth = () => {
   const [email, setEmail] = useState("");
@@ -26,6 +27,7 @@ const Auth = () => {
     }
   };
 
+  // async/await, try/catch
   const onSubmit = async (event) => {
     event.preventDefault();
     try {
@@ -58,6 +60,8 @@ const Auth = () => {
 
   return (
     <div>
+      <h2>트위터에 처음이세요?</h2>
+      <span>이메일로 가입하기</span>
       <form onSubmit={onSubmit}>
         <input name="email"
           type="email"
@@ -76,9 +80,17 @@ const Auth = () => {
         <input type="submit" value={newAccount ? "Create Account" : "Sign In"} />
         {error}
       </form>
-      <span onClick={toggleAccount}>{newAccount ? "Sign In" : "Create Account"}</span>
-      <button onClick={onSocialClick} name="google">Continue with Google</button>
-      <button onClick={onSocialClick} name="github">Continue with Github</button>
+      <div>
+        <span>다른 방법으로 가입하기</span>
+        <button onClick={onSocialClick} name="google">Continue with Google</button>
+        <button onClick={onSocialClick} name="github">Continue with Github</button>
+      </div>
+      <div>
+        <span>이미 가입되어 있으신가요?</span>
+        <Link onClick={toggleAccount}>
+          {newAccount ? "Sign In" : "Create Account"}
+        </Link>
+      </div>
     </div>
   );
 };
