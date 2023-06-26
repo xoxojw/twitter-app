@@ -1,3 +1,4 @@
+import uuid from "react-uuid";
 import { useEffect, useState } from "react";
 import { dbService } from "fbase";
 import {
@@ -6,7 +7,8 @@ import {
   query,
   onSnapshot,
   orderBy,
-  } from "firebase/firestore";
+} from "firebase/firestore";
+import { ref, uploadString } from "@firebase/storage";
 import Tweet from "components/Tweet";
 
 const Home = ({ userObj }) => {
@@ -32,18 +34,22 @@ const Home = ({ userObj }) => {
 
   const onSubmitTweet = async (e) => {
     e.preventDefault();
-    try {
-      // "tweets" : collection 이름
-      const docRef = await addDoc(collection(dbService, "tweets"), {
-        text: tweet,
-        createdAt: Date.now(),
-        creatorId: userObj.uid,
-      });
-      console.log("Tweet written with ID: ", docRef.id);
-    } catch (error) {
-      console.error("Error adding tweet: ", error);
-    }
-    setTweet("");
+    const fileRef = ref(storageService, `${userObj.uid}/${uuid()}`);
+    const response = await uploadString(fileRef, attachment, "data_url");
+    console.log(response);
+    
+    // try {
+    //   // "tweets" : collection 이름
+    //   const docRef = await addDoc(collection(dbService, "tweets"), {
+    //     text: tweet,
+    //     createdAt: Date.now(),
+    //     creatorId: userObj.uid,
+    //   });
+    //   console.log("Tweet written with ID: ", docRef.id);
+    // } catch (error) {
+    //   console.error("Error adding tweet: ", error);
+    // }
+    // setTweet("");
   }
 
   const onChange = (e) => {setTweet(e.target.value)}
