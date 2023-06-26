@@ -2,7 +2,6 @@ import uuid from "react-uuid";
 import { useEffect, useState } from "react";
 import { dbService, storageService } from "fbase";
 import {
-  addDoc,
   collection,
   query,
   onSnapshot,
