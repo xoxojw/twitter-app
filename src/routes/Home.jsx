@@ -27,7 +27,6 @@ const Home = ({ userObj }) => {
       ...document.data(),
       }));
       setTweets(tweetArr);
-      console.log(tweets);
     });
     }, []);
 
