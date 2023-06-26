@@ -9,7 +9,7 @@ const App = () => {
 
   useEffect(() => {
     const auth = getAuth();
-    // 로그인이 되면, onAuthS(tateChanged 함수가 호출됨
+    // 로그인이 되면, onAuthStateChanged 함수가 호출됨
     onAuthStateChanged(auth, (user) => { 
       if (user) {
         // 로그인이 되면 userObj의 state가 초기값 null에서 userObj로 변경
