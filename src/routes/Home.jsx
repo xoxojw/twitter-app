@@ -7,6 +7,7 @@ import {
   onSnapshot,
   orderBy,
   } from "firebase/firestore";
+import Tweet from "components/Tweet";
 
 const Home = ({ userObj }) => {
   const [tweet, setTweet] = useState("");
@@ -18,7 +19,6 @@ const Home = ({ userObj }) => {
       collection(dbService, "tweets"),
       orderBy("createdAt", "desc"),
     );
-
     // snapshot
     onSnapshot(q, (snapshot) => {
     const tweetArr = snapshot.docs.map((document) => ({
@@ -27,6 +27,7 @@ const Home = ({ userObj }) => {
       ...document.data(),
       }));
       setTweets(tweetArr);
+      console.log(tweets);
     });
     }, []);
 
@@ -46,8 +47,6 @@ const Home = ({ userObj }) => {
     setTweet("");
   }
 
-  // console.log(tweets);
-
   const onChange = (e) => {setTweet(e.target.value)}
 
   return (
@@ -59,13 +58,9 @@ const Home = ({ userObj }) => {
           <input type="submit" value="Tweet" />
         </form>
         <div>
-          {tweets.map((tweet) => {
-            return (
-              <div key={tweet.id}>
-                <h4>{tweet.text}</h4>
-                <p>{new Date(tweet.createdAt).toLocaleString()}</p>
-              </div>)
-          })}
+          {tweets.map((tweet) => (
+            <Tweet key={tweet.id} tweet={tweet} isOwner={tweet.creatorId === userObj.uid} />
+          ))}
         </div>
       </div>
     </>
