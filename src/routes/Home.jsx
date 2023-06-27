@@ -2,18 +2,19 @@ import uuid from "react-uuid";
 import { useEffect, useState } from "react";
 import { dbService, storageService } from "fbase";
 import {
+  addDoc,
   collection,
   query,
   onSnapshot,
   orderBy,
 } from "firebase/firestore";
-import { ref, uploadString } from "firebase/storage";
+import { ref, uploadString, getDownloadURL } from "firebase/storage";
 import Tweet from "components/Tweet";
 
 const Home = ({ userObj }) => {
   const [tweet, setTweet] = useState("");
   const [tweets, setTweets] = useState([]);
-  const [attachment, setAttachment] = useState(null);
+  const [attachment, setAttachment] = useState("");
   
   useEffect(() => {
     // query 불러오고 정렬하기
@@ -34,23 +35,34 @@ const Home = ({ userObj }) => {
 
   const onSubmitTweet = async (e) => {
     e.preventDefault();
-    const fileRef = ref(storageService, `${userObj.uid}/${uuid()}`);
-    const response = await uploadString(fileRef, attachment, "data_url");
-    console.log(response);
+    let attachmentUrl = "";
 
-    // 기존 코드
-    // try {
-    //   // "tweets" : collection 이름
-    //   const docRef = await addDoc(collection(dbService, "tweets"), {
-    //     text: tweet,
-    //     createdAt: Date.now(),
-    //     creatorId: userObj.uid,
-    //   });
-    //   console.log("Tweet written with ID: ", docRef.id);
-    // } catch (error) {
-    //   console.error("Error adding tweet: ", error);
-    // }
-    // setTweet("");
+    //이미지 첨부하지 않고 텍스트만 올리고 싶을 때도 있기 때문에 attachment가 있을때만 아래 코드 실행
+    //이미지 첨부하지 않은 경우엔 attachmentUrl=""
+    if (attachment !== "") {
+      //파일 경로 참조 만들기
+      const attachmentRef = ref(storageService, `${userObj.uid}/${uuid()}`);
+      //storage 참조 경로로 파일 업로드 하기
+      const response = await uploadString(attachmentRef, attachment, "data_url");
+      //storage 참조 경로에 있는 파일의 URL을 다운로드해서 attachmentUrl 변수에 넣어서 업데이트
+      attachmentUrl = await getDownloadURL(response.ref);
+    }
+
+    try {
+      // "tweets" : collection 이름
+      const docRef = await addDoc(collection(dbService, "tweets"), {
+        text: tweet,
+        createdAt: Date.now(),
+        creatorId: userObj.uid,
+        attachmentUrl,
+      });
+    } catch (error) {
+      alert("트윗이 정상적으로 업로드되지 않았습니다. 다시 시도해주세요.");
+      console.error("Error adding tweet: ", error);
+    }
+
+    setTweet("");
+    setAttachment("");
   }
 
   const onChange = (e) => {setTweet(e.target.value)}
@@ -77,13 +89,13 @@ const Home = ({ userObj }) => {
     // 4. readAsDataURL API로 사진을 얻는다.
     imgFileReader.readAsDataURL(theFile);
   }
-  const onClearAttatchment = () => setAttachment(null);
+  const onClearAttatchment = () => setAttachment("");
 
   return (
     <>
       <h1>Home</h1>
       <div>
-        <form onSubmit={onSubmitTweet}>
+        <form onSubmit={onSubmitTweet} style={{ margin: "20px" }}>
           <input
             value={tweet}
             onChange={onChange}

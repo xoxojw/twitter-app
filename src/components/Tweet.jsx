@@ -60,7 +60,12 @@ const Tweet = ({ tweet, isOwner }) => {
           )}
         </>
         ) : 
-        (<div>
+        (<div style={{
+          border: "1px solid black",
+          margin: "10px",
+          padding: "10px",
+        }}>
+          {tweet.attachmentUrl && <img src={tweet.attachmentUrl} width="150px" height="150px"/>}
           <h4>{tweet.text}</h4>
           <p>{new Date(tweet.createdAt).toLocaleString()}</p>
           {isOwner && (
