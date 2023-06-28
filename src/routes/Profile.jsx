@@ -1,17 +1,39 @@
-import { useEffect } from "react";
-import { getAuth, signOut } from "firebase/auth";
+import { useState, useEffect } from "react";
+import { getAuth, updateProfile, signOut } from "firebase/auth";
 import { query, getDocs, collection, where, orderBy } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
-import { dbService } from "fbase";
+import { authService, dbService } from "fbase";
 
-const Profile = ({ userObj }) => {
+const Profile = ({ userObj, refreshUser }) => {
   const navigate = useNavigate();
-  const auth = getAuth();
-  
+  const [newDisplayName, setNewDispayName] = useState(userObj.displayName);
+
   const onLogOutClick = () => {
+    const auth = getAuth();
     signOut(auth);
     navigate("/", { replace: true });
   };
+
+  const onChange = (e) => {
+    const {
+      target: { value },
+    } = e;
+    setNewDispayName(value)
+  }
+
+  const onSubmit = async (e) => {
+    e.preventDefault();
+    if (userObj.displayName !== newDisplayName) {
+      try {
+        await updateProfile(authService.currentUser, { displayName: newDisplayName });
+        window.alert("닉네임이 정상적으로 변경되었습니다.");
+      }
+      catch (error) {
+        window.alert(error);
+      }
+    }
+    refreshUser();
+  }
 
   const getMyTweets = async () => {
     const q = query(
@@ -34,6 +56,15 @@ const Profile = ({ userObj }) => {
   return (
     <>
       <button onClick={onLogOutClick}>Log Out</button>
+      <form onSubmit={onSubmit}>
+        <input
+          onChange={onChange}
+          type="text"
+          placeholder="닉네임을 설정해주세요"
+          value={newDisplayName}
+        />
+        <input type="submit" value="업데이트"/>
+      </form>
     </>
   );
 };
