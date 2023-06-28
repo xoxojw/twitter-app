@@ -25,7 +25,7 @@ const Home = ({ userObj }) => {
     // snapshot
     onSnapshot(q, (snapshot) => {
     const tweetArr = snapshot.docs.map((document) => ({
-      creatorId: 12121,
+      creatorId: userObj.uid,
       id: document.id,
       ...document.data(),
       }));
