@@ -24,6 +24,7 @@ const App = () => {
 
         // AppRouter에 위의 두 정보(로그인 여부, 유저명)를 props로 전달해줘야함
       } else {
+        // logout
         setUserObj(null);
       }
       setInit(true);

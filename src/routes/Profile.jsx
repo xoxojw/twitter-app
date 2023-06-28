@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { getAuth, updateProfile, signOut } from "firebase/auth";
+import { updateProfile } from "firebase/auth";
 import { query, getDocs, collection, where, orderBy } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
 import { authService, dbService } from "fbase";
@@ -9,8 +9,7 @@ const Profile = ({ userObj, refreshUser }) => {
   const [newDisplayName, setNewDispayName] = useState(userObj.displayName);
 
   const onLogOutClick = () => {
-    const auth = getAuth();
-    signOut(auth);
+    authService.signOut();
     navigate("/", { replace: true });
   };
 
