@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { dbService } from "fbase";
 import { doc, deleteDoc, updateDoc } from "firebase/firestore";
+import { getStorage, ref, deleteObject } from "firebase/storage";
 
 const Tweet = ({ tweet, isOwner }) => {
   // editing -> true/false값으로 수정모드인지 아닌지에 대한 상태
@@ -12,10 +13,28 @@ const Tweet = ({ tweet, isOwner }) => {
   const onDeleteClick = async () => {
     const ok = window.confirm("정말로 이 트윗을 삭제하시겠어요?");
     const tweetRef = doc(dbService, "tweets", tweet.id);
+
     if (ok) {
-      // delete tweet
-      await deleteDoc(tweetRef);
-    }
+      // delete tweet if there is an attachment
+      if (tweet.attachmentUrl !== "") {
+        const storage = getStorage();
+        const attachmentRef = ref(storage, tweet.attachmentUrl)
+        try {
+          await deleteDoc(tweetRef);
+          await deleteObject(attachmentRef);
+        }
+        catch (error) {
+          window.alert("트윗을 삭제하는데 실패했습니다.");
+        }
+      } else {
+        // If there is NO attachment
+        try {
+          await deleteDoc(tweetRef);
+        } catch (error) {
+          window.alert("트윗을 삭제하는데 실패했습니다.");
+        }
+      };
+    };
   }
 
   // 수정하기 - updateDoc() 메서드
@@ -65,7 +84,7 @@ const Tweet = ({ tweet, isOwner }) => {
           margin: "10px",
           padding: "10px",
         }}>
-          {tweet.attachmentUrl && <img src={tweet.attachmentUrl} width="150px" height="150px"/>}
+          {tweet.attachmentUrl && <img src={tweet.attachmentUrl} alt="loading" width="150px" height="150px"/>}
           <h4>{tweet.text}</h4>
           <p>{new Date(tweet.createdAt).toLocaleString()}</p>
           {isOwner && (
